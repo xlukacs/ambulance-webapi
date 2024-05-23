@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: lbmjm-ambulance-webapi
+spec:
+  selector:
+    pod: lbmjm-ambulance-webapi-label
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: webapi-port
