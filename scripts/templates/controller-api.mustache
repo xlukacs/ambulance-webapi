@@ -36,4 +36,15 @@ func (this *impl{{classname}}) addRoutes(routerGroup *gin.RouterGroup) {
   {{/operation}}
 }
 
+
+// Copy following section to separate file, uncomment, and implement accordingly
+{{#operation}}
+// // {{nickname}} - {{{summary}}}{{#isDeprecated}}
+// // Deprecated{{/isDeprecated}}
+// func (this *impl{{classname}}) {{nickname}}(ctx *gin.Context) {
+//  	ctx.AbortWithStatus(http.StatusNotImplemented)
+// }
+//
+{{/operation}}
+
 {{/operations}}

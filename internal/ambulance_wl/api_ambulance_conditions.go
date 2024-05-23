@@ -39,3 +39,11 @@ func (this *implAmbulanceConditionsAPI) addRoutes(routerGroup *gin.RouterGroup) 
   routerGroup.Handle( http.MethodGet, "/waiting-list/:ambulanceId/condition", this.GetConditions)
 }
 
+
+// Copy following section to separate file, uncomment, and implement accordingly
+// // GetConditions - Provides the list of conditions associated with ambulance
+// func (this *implAmbulanceConditionsAPI) GetConditions(ctx *gin.Context) {
+//  	ctx.AbortWithStatus(http.StatusNotImplemented)
+// }
+//
+
