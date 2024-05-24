@@ -21,6 +21,11 @@ import (
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
+
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/sdk/trace"
 )
 
 func main() {
@@ -47,14 +52,21 @@ func main() {
 	engine.Use(corsMiddleware)
 
 	// setup telemetry
-	initTelemetry()
-	engine.Use(otelginmetrics.Middleware(
-		"Ambulance WebAPI Service",
-		// Custom attributes
-		otelginmetrics.WithAttributes(func(serverName, route string, request *http.Request) []attribute.KeyValue {
-			return append(otelginmetrics.DefaultAttributes(serverName, route, request))
-		}),
-	))
+	shutdown, err := initTelemetry()
+	if err != nil {
+		log.Fatalf("Failed to initialize telemetry: %v", err)
+	}
+	defer func() { _ = shutdown(context.Background()) }()
+	engine.Use(
+		otelginmetrics.Middleware(
+			"Ambulance WebAPI Service",
+			// Custom attributes
+			otelginmetrics.WithAttributes(func(serverName, route string, request *http.Request) []attribute.KeyValue {
+				return append(otelginmetrics.DefaultAttributes(serverName, route, request))
+			}),
+		),
+		otelgin.Middleware(serverName),
+	)
 
 	// setup context update  middleware
 	dbService := db_service.NewMongoService[ambulance_wl.Ambulance](db_service.MongoServiceConfig{})
@@ -77,7 +89,7 @@ func main() {
 }
 
 // initialize OpenTelemetry instrumentations
-func initTelemetry() error {
+func initTelemetry() (func(context.Context) error, error) {
 	ctx := context.Background()
 	res, err := resource.New(ctx,
 		resource.WithAttributes(semconv.ServiceNameKey.String("Ambulance WebAPI Service")),
@@ -87,15 +99,40 @@ func initTelemetry() error {
 	)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	metricExporter, err := prometheus.New()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	metricProvider := metric.NewMeterProvider(metric.WithReader(metricExporter), metric.WithResource(res))
 	otel.SetMeterProvider(metricProvider)
-	return nil
+	// setup trace exporter, only otlp supported
+	// see also https://github.com/open-telemetry/opentelemetry-go-contrib/tree/main/exporters/autoexport
+	traceExportType := os.Getenv("OTEL_TRACES_EXPORTER")
+	if traceExportType == "otlp" {
+		ctx, cancel := context.WithTimeout(ctx, time.Second)
+		defer cancel()
+		// we will configure exporter by using env variables defined
+		// at https://opentelemetry.io/docs/concepts/sdk-configuration/otlp-exporter-configuration/
+		traceExporter, err := otlptracegrpc.New(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		traceProvider := trace.NewTracerProvider(
+			trace.WithResource(res),
+			trace.WithSyncer(traceExporter))
+
+		otel.SetTracerProvider(traceProvider)
+		otel.SetTextMapPropagator(propagation.TraceContext{})
+		// Shutdown function will flush any remaining spans
+		return traceProvider.Shutdown, nil
+	} else {
+		// no otlp trace exporter configured
+		noopShutdown := func(context.Context) error { return nil }
+		return noopShutdown, nil
+	}
 }
