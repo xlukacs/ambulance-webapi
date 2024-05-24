@@ -22,7 +22,6 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
 
-	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/trace"
@@ -65,7 +64,7 @@ func main() {
 				return append(otelginmetrics.DefaultAttributes(serverName, route, request))
 			}),
 		),
-		otelgin.Middleware(serverName),
+		// otelgin.Middleware(serverName), TODO this needs to be here, but where is the serverName coming from...???
 	)
 
 	// setup context update  middleware
