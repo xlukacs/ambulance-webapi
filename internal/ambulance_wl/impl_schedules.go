@@ -100,87 +100,91 @@ func (this *implSchedulesAPI) DeleteSchedule(ctx *gin.Context) {
 			}, http.StatusBadRequest
 		}
 
-		// scheduleIndx := slices.IndexFunc(ambulance.Schedules, func(current Schedule) bool {
-		// 	return scheduleId == current.Id
-		// })
+		scheduleIndx := slices.IndexFunc(ambulance.Schedules, func(current Schedule) bool {
+			return scheduleId == current.Id
+		})
 
-		// if roomIndx < 0 {
-		// 	return nil, gin.H{
-		// 		"status":  http.StatusNotFound,
-		// 		"message": "Room not found",
-		// 	}, http.StatusNotFound
-		// }
+		if scheduleIndx < 0 {
+			return nil, gin.H{
+				"status":  http.StatusNotFound,
+				"message": "Room not found",
+			}, http.StatusNotFound
+		}
 
-		// ambulance.Rooms = append(ambulance.Rooms[:roomIndx], ambulance.Rooms[roomIndx+1:]...)
-		// //ambulance.reconcileWaitingList()
-		// return ambulance, nil, http.StatusNoContent
-
+		ambulance.Schedules = append(ambulance.Schedules[:scheduleIndx], ambulance.Schedules[scheduleIndx+1:]...)
+		//ambulance.reconcileWaitingList()
 		return ambulance, nil, http.StatusNoContent
 	})
 }
 
 func (this *implSchedulesAPI) GetSchedule(ctx *gin.Context) {
 	updateAmbulanceFunc(ctx, func(c *gin.Context, ambulance *Ambulance) (*Ambulance, interface{}, int) {
-		// result := ambulance.Schedule
-		// if result == nil {
-		// 	result = []Room{}
-		// }
-		// // return nil ambulance - no need to update it in db
-		return nil, nil, http.StatusOK
+		result := ambulance.Schedules
+		if result == nil {
+			result = []Schedule{}
+		}
+		// return nil ambulance - no need to update it in db
+		return ambulance, result, http.StatusOK
 	})
 }
 
 func (this *implSchedulesAPI) UpdateSchedule(ctx *gin.Context) {
 	updateAmbulanceFunc(ctx, func(c *gin.Context, ambulance *Ambulance) (*Ambulance, interface{}, int) {
-		// var room Room
+		var schedule Schedule
 
-		// if err := c.ShouldBindJSON(&room); err != nil {
-		// 	return nil, gin.H{
-		// 		"status":  http.StatusBadRequest,
-		// 		"message": "Invalid request body",
-		// 		"error":   err.Error(),
-		// 	}, http.StatusBadRequest
-		// }
+		if err := c.ShouldBindJSON(&schedule); err != nil {
+			return nil, gin.H{
+				"status":  http.StatusBadRequest,
+				"message": "Invalid request body",
+				"error":   err.Error(),
+			}, http.StatusBadRequest
+		}
 
-		// roomId := ctx.Param("roomId")
+		scheduleId := ctx.Param("scheduleId")
 
-		// if roomId == "" {
-		// 	return nil, gin.H{
-		// 		"status":  http.StatusBadRequest,
-		// 		"message": "Room ID is required",
-		// 	}, http.StatusBadRequest
-		// }
+		if scheduleId == "" {
+			return nil, gin.H{
+				"status":  http.StatusBadRequest,
+				"message": "Room ID is required",
+			}, http.StatusBadRequest
+		}
 
-		// roomIndx := slices.IndexFunc(ambulance.Rooms, func(current Room) bool {
-		// 	return roomId == current.Id
-		// })
+		scheduleIdx := slices.IndexFunc(ambulance.Schedules, func(current Schedule) bool {
+			return scheduleId == current.Id
+		})
 
-		// if roomIndx < 0 {
-		// 	return nil, gin.H{
-		// 		"status":  http.StatusNotFound,
-		// 		"message": "Room not found",
-		// 	}, http.StatusNotFound
-		// }
+		if scheduleIdx < 0 {
+			return nil, gin.H{
+				"status":  http.StatusNotFound,
+				"message": "Room not found",
+			}, http.StatusNotFound
+		}
 
-		// if room.Id != "" {
-		// 	ambulance.Rooms[roomIndx].Id = room.Id
-		// }
+		if schedule.Id != "" {
+			ambulance.Schedules[scheduleIdx].Id = schedule.Id
+		}
 
-		// if room.Width != "" {
-		// 	ambulance.Rooms[roomIndx].Width = room.Width
-		// }
+		if schedule.RoomId != "" {
+			ambulance.Schedules[scheduleIdx].RoomId = schedule.RoomId
+		}
 
-		// if room.Height != "" {
-		// 	ambulance.Rooms[roomIndx].Height = room.Height
-		// }
+		if schedule.PatientId != "" {
+			ambulance.Schedules[scheduleIdx].PatientId = schedule.PatientId
+		}
 
-		// if room.Equipment != "" {
-		// 	ambulance.Rooms[roomIndx].Equipment = room.Equipment
-		// }
+		if schedule.Note != "" {
+			ambulance.Schedules[scheduleIdx].Note = schedule.Note
+		}
 
-		// //ambulance.reconcileWaitingList()
-		// return ambulance, ambulance.Rooms[roomIndx], http.StatusOK
+		if !schedule.Start.IsZero() {
+			ambulance.Schedules[scheduleIdx].Start = schedule.Start
+		}
 
-		return ambulance, nil, http.StatusOK
+		if !schedule.End.IsZero() {
+			ambulance.Schedules[scheduleIdx].End = schedule.End
+		}
+
+		//ambulance.reconcileWaitingList()
+		return ambulance, ambulance.Schedules[scheduleIdx], http.StatusOK
 	})
 }
