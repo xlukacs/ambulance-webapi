@@ -25,4 +25,6 @@ type Room struct {
 	TipicalCostToOperate int32 `json:"tipicalCostToOperate,omitempty"`
 
 	Equipment string `json:"equipment,omitempty"`
+
+	Name string `json:"name,omitempty"`
 }

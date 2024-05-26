@@ -422,7 +422,7 @@ paths:
       tags:
         - schedules
       summary: Provides the ambulance schedule
-      operationId: getSchedule
+      operationId: getSchedules
       description: By using ambulanceId you get list of predefined schedule
       parameters:
         - in: path
@@ -439,10 +439,10 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/WaitingListEntry"
+                  $ref: "#/components/schemas/Schedule"
               examples:
                 response:
-                  $ref: "#/components/examples/WaitingListEntriesExample"
+                  $ref: "#/components/examples/ScheduleExample"
         "404":
           description: Ambulance with such ID does not exists
     post:
@@ -579,6 +579,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/WaitingListEntry'
+
         rooms:
           type: array
           items:
@@ -678,6 +679,9 @@ components:
         equipment:
           type: string
           example: "1x bed, 1x chair, 1x table"
+        name:
+          type: string
+          example: Room 1
       example:
         $ref: "#/components/examples/RoomExample"
     RoomsListEntry:
@@ -866,26 +870,31 @@ components:
           height: 2m
           reference: "https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/"
           tipicalCostToOperate: 20
+          name: Room 1
         - id: x321ab4
           width: 5m
           height: 3m
           reference: "https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/"
           tipicalCostToOperate: 21
+          name: Room 2
         - id: x321ab5
           width: 7m
           height: 4m
           reference: "https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/"
           tipicalCostToOperate: 22
+          name: Room 3
         - id: x321ab6
           width: 9m
           height: 1m
           reference: "https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/"
           tipicalCostToOperate: 23
+          name: Room 4
         - id: x321ab7
           width: 8m
           height: 6m
           reference: "https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/"
           tipicalCostToOperate: 24
+          name: Room 5
     RoomExample:
       summary: Room and its equipment
       description: list of equipment in the room
@@ -895,6 +904,7 @@ components:
         height: 0m
         reference: "https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/"
         tipicalCostToOperate: 19
+        name: Room 1
     ScheduleExample:
       summary: Schedule of ambulance
       description: list of schedule of ambulance

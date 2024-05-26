@@ -27,8 +27,8 @@ type SchedulesAPI interface {
     // DeleteSchedule - Deletes specific schedule entry
    DeleteSchedule(ctx *gin.Context)
 
-    // GetSchedule - Provides the ambulance schedule
-   GetSchedule(ctx *gin.Context)
+    // GetSchedules - Provides the ambulance schedule
+   GetSchedules(ctx *gin.Context)
 
     // UpdateSchedule - Updates specific schedule entry
    UpdateSchedule(ctx *gin.Context)
@@ -47,7 +47,7 @@ func newSchedulesAPI() SchedulesAPI {
 func (this *implSchedulesAPI) addRoutes(routerGroup *gin.RouterGroup) {
   routerGroup.Handle( http.MethodPost, "/schedules/:ambulanceId/entries", this.CreateSchedule)
   routerGroup.Handle( http.MethodDelete, "/schedules/:ambulanceId/entries", this.DeleteSchedule)
-  routerGroup.Handle( http.MethodGet, "/schedules/:ambulanceId/entries", this.GetSchedule)
+  routerGroup.Handle( http.MethodGet, "/schedules/:ambulanceId/entries", this.GetSchedules)
   routerGroup.Handle( http.MethodPut, "/schedules/:ambulanceId/entries", this.UpdateSchedule)
 }
 
@@ -63,8 +63,8 @@ func (this *implSchedulesAPI) addRoutes(routerGroup *gin.RouterGroup) {
 //  	ctx.AbortWithStatus(http.StatusNotImplemented)
 // }
 //
-// // GetSchedule - Provides the ambulance schedule
-// func (this *implSchedulesAPI) GetSchedule(ctx *gin.Context) {
+// // GetSchedules - Provides the ambulance schedule
+// func (this *implSchedulesAPI) GetSchedules(ctx *gin.Context) {
 //  	ctx.AbortWithStatus(http.StatusNotImplemented)
 // }
 //

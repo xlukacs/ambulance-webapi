@@ -117,7 +117,7 @@ func (this *implSchedulesAPI) DeleteSchedule(ctx *gin.Context) {
 	})
 }
 
-func (this *implSchedulesAPI) GetSchedule(ctx *gin.Context) {
+func (this *implSchedulesAPI) GetSchedules(ctx *gin.Context) {
 	updateAmbulanceFunc(ctx, func(c *gin.Context, ambulance *Ambulance) (*Ambulance, interface{}, int) {
 		result := ambulance.Schedules
 		if result == nil {
