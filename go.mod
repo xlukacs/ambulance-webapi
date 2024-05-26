@@ -10,7 +10,6 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/technologize/otel-go-contrib v1.1.1
 	go.mongodb.org/mongo-driver v1.15.0
-	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.52.0
 	go.opentelemetry.io/otel v1.27.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.27.0
 	go.opentelemetry.io/otel/exporters/prometheus v0.49.0
