@@ -1,4 +1,5 @@
 openapi: 3.0.0
+
 servers:
   - description: Cluster Endpoint
     url: /api
@@ -7,48 +8,51 @@ info:
   version: "1.0.0"
   title: Waiting List Api
   contact:
-    email: lukacs.bence2000@gmail.com
+    email: test@test.com
   license:
     name: CC BY 4.0
     url: "https://creativecommons.org/licenses/by/4.0/"
 tags:
- - name: ambulanceWaitingList
-   description: Ambulance Waiting List API
- - name: ambulanceConditions
-   description: Patient conditions and symptoms handled in the ambulance
- - name: ambulances
-   description: Ambulance details
-
+  - name: ambulanceWaitingList
+    description: Ambulance Waiting List API
+  - name: ambulanceConditions
+    description: Patient conditions and symptoms handled in the ambulance
+  - name: ambulanceRooms
+    description: Ambulance rooms and their conditions
+  - name: ambulances
+    description: Ambulance details
+  - name: schedules
+    description: Ambulance rooms and their conditions
 paths:
   "/waiting-list/{ambulanceId}/entries":
-   get:
-     tags:
-       - ambulanceWaitingList
-     summary: Provides the ambulance waiting list
-     operationId: getWaitingListEntries
-     description: By using ambulanceId you get list of entries in ambulance waiting list
-     parameters:
-       - in: path
-         name: ambulanceId
-         description: pass the id of the particular ambulance
-         required: true
-         schema:
-           type: string
-     responses:
-       "200":
-         description: value of the waiting list entries
-         content:
-           application/json:
-             schema:
-               type: array
-               items:
-                 $ref: "#/components/schemas/WaitingListEntry"
-             examples:
-               response:
-                 $ref: "#/components/examples/WaitingListEntriesExample"
-       "404":
-         description: Ambulance with such ID does not exist
-   post:
+    get:
+      tags:
+        - ambulanceWaitingList
+      summary: Provides the ambulance waiting list
+      operationId: getWaitingListEntries
+      description: By using ambulanceId you get list of entries in ambulance waiting list
+      parameters:
+        - in: path
+          name: ambulanceId
+          description: pass the id of the particular ambulance
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: value of the waiting list entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WaitingListEntry"
+              examples:
+                response:
+                  $ref: "#/components/examples/WaitingListEntriesExample"
+        "404":
+          description: Ambulance with such ID does not exist
+    post:
       tags:
         - ambulanceWaitingList
       summary: Saves new entry into waiting list
@@ -222,6 +226,100 @@ paths:
                   $ref: "#/components/examples/ConditionsListExample"
         "404":
           description: Ambulance with such ID does not exists
+  "/rooms/{ambulanceId}/entries":
+    get:
+      tags:
+        - ambulanceRooms
+      summary: Provides the list of rooms associated with ambulance
+      operationId: getRooms
+      description: By using ambulanceId you get list of predefined rooms
+      parameters:
+        - in: path
+          name: ambulanceId
+          description: pass the id of the particular ambulance
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: value of the predefined conditions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Room"
+              examples:
+                response:
+                  $ref: "#/components/examples/RoomsListExample"
+        "404":
+          description: Ambulance with such ID does not exists
+    post:
+      tags:
+        - ambulanceRooms
+      summary: Saves new entry into rooms list
+      operationId: createRoom
+      description: Use this method to store new entry into the rooms list.
+      parameters:
+        - in: path
+          name: ambulanceId
+          description: pass the id of the particular ambulance
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Room"
+            examples:
+              request-sample:
+                $ref: "#/components/examples/RoomExample"
+        description: Rooms list entry to store
+        required: true
+      responses:
+        "200":
+          description: >-
+            Value of the rooms list entry with re-computed estimated time of
+            ambulance entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+              examples:
+                updated-response:
+                  $ref: "#/components/examples/RoomExample"
+        "400":
+          description: Missing mandatory properties of input object.
+        "404":
+          description: Ambulance with such ID does not exists
+        "409":
+          description: Entry with the specified id already exists
+    delete:
+      tags:
+        - ambulanceRooms
+      summary: Deletes specific room
+      operationId: deleteRoom
+      description: Use this method to delete the specific room from the rooms list.
+      parameters:
+        - in: path
+          name: ambulanceId
+          description: pass the id of the particular ambulance
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: entryId
+          description: pass the id of the particular entry in the rooms list
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Item deleted
+        "404":
+          description: Ambulance or Entry with such ID does not exists
+
   "/ambulance":
     post:
       tags:
@@ -273,70 +371,152 @@ paths:
           description: Item deleted
         "404":
           description: Ambulance with such ID does not exist
+  "/schedules/{ambulanceId}/entries":
+    get:
+      tags:
+        - schedules
+      summary: Provides the ambulance schedule
+      operationId: getSchedule
+      description: By using ambulanceId you get list of predefined schedule
+      parameters:
+        - in: path
+          name: ambulanceId
+          description: pass the id of the particular ambulance
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: value of the predefined schedule
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WaitingListEntry"
+              examples:
+                response:
+                  $ref: "#/components/examples/WaitingListEntriesExample"
+        "404":
+          description: Ambulance with such ID does not exists
+    post:
+      tags:
+        - schedules
+      summary: Saves new entry into schedule list
+      operationId: createSchedule
+      description: Use this method to store new entry into the schedule list.
+      parameters:
+        - in: path
+          name: ambulanceId
+          description: pass the id of the particular ambulance
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Schedule"
+            examples:
+              request-sample:
+                $ref: "#/components/examples/ScheduleExample"
+        description: Schedule list entry to store
+        required: true
+      responses:
+        "200":
+          description: >-
+            Value of the schedule list entry with re-computed estimated time of
+            ambulance entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Schedule"
+              examples:
+                updated-response:
+                  $ref: "#/components/examples/ScheduleExample"
+        "400":
+          description: Missing mandatory properties of input object.
+        "404":
+          description: Ambulance with such ID does not exists
+        "409":
+          description: Entry with the specified id already exists
+    put:
+      tags:
+        - schedules
+      summary: Updates specific schedule entry
+      operationId: updateSchedule
+      description: Use this method to update content of the schedule entry.
+      parameters:
+        - in: path
+          name: ambulanceId
+          description: pass the id of the particular ambulance
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: entryId
+          description: pass the id of the particular entry in the schedule list
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Schedule"
+            examples:
+              request:
+                $ref: "#/components/examples/ScheduleExample"
+        description: Schedule list entry to update
+        required: true
+      responses:
+        "200":
+          description: >-
+            value of the schedule list entry with re-computed estimated time of
+            ambulance entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Schedule"
+              examples:
+                response:
+                  $ref: "#/components/examples/ScheduleExample"
+        "403":
+          description: >-
+            Value of the entryID and the data id is mismatching. Details are
+            provided in the response body.
+        "404":
+          description: Ambulance or Entry with such ID does not exists
+    delete:
+      tags:
+        - schedules
+      summary: Deletes specific schedule entry
+      operationId: deleteSchedule
+      description: Use this method to delete the specific schedule entry from the schedule list.
+      parameters:
+        - in: path
+          name: ambulanceId
+          description: pass the id of the particular ambulance
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: entryId
+          description: pass the id of the particular entry in the schedule list
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Item deleted
+        "404":
+          description: Ambulance or Entry with such ID does not exists
+
 components:
   schemas:
-   WaitingListEntry:
-     type: object
-     required: [id, patientId, waitingSince, estimatedDurationMinutes]
-     properties:
-       id:
-         type: string
-         example: x321ab3
-         description: Unique id of the entry in this waiting list
-       name:
-         type: string
-         example: Jožko Púčik
-         description: Name of patient in waiting list
-       patientId:
-         type: string
-         example: 460527-jozef-pucik
-         description: Unique identifier of the patient known to Web-In-Cloud system
-       waitingSince:
-         type: string
-         format: date-time
-         example: "2038-12-24T10:05:00Z"
-         description: Timestamp since when the patient entered the waiting list
-       estimatedStart:
-         type: string
-         format: date-time
-         example: "2038-12-24T10:35:00Z"
-         description: Estimated time of entering ambulance. Ignored on post.
-       estimatedDurationMinutes:
-         type: integer
-         format: int32
-         example: 15
-         description: >-
-           Estimated duration of ambulance visit. If not provided then it will
-           be computed based on condition and ambulance settings
-       condition:
-         $ref: "#/components/schemas/Condition"
-     example:
-       $ref: "#/components/examples/WaitingListEntryExample"
-   Condition:
-     description: "Describes disease, symptoms, or other reasons of patient   visit"
-     required:
-       - value
-     properties:
-       value:
-         type: string
-         example: Teploty
-       code:
-         type: string
-         example: subfebrilia
-       reference:
-         type: string
-         format: url
-         example: "https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/"
-         description: Link to encyclopedical explanation of the patient's condition
-       typicalDurationMinutes:
-         type: integer
-         format: int32
-         example: 20
-     example:
-       $ref: "#/components/examples/ConditionExample"
-   Ambulance:
+    Ambulance:
       type: object
-      required: [ "id", "name", "roomNumber"]
+      required: [ "id", "name", "roomNumber" ]
       properties:
         id:
           type: string
@@ -353,84 +533,162 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/WaitingListEntry'
+
+        rooms:
+          type: array
+          items:
+            $ref: '#/components/schemas/Room'
         predefinedConditions:
           type: array
           items:
             $ref: '#/components/schemas/Condition'
       example:
         $ref: "#/components/examples/AmbulanceExample"
+    WaitingListEntry:
+      type: object
+      required: [id, patientId, waitingSince, estimatedDurationMinutes]
+      properties:
+        id:
+          type: string
+          example: x321ab3
+          description: Unique id of the entry in this waiting list
+        name:
+          type: string
+          example: Jožko Púčik
+          description: Name of patient in waiting list
+        patientId:
+          type: string
+          example: 460527-jozef-pucik
+          description: Unique identifier of the patient known to Web-In-Cloud system
+        waitingSince:
+          type: string
+          format: date-time
+          example: "2038-12-24T10:05:00Z"
+          description: Timestamp since when the patient entered the waiting list
+        estimatedStart:
+          type: string
+          format: date-time
+          example: "2038-12-24T10:35:00Z"
+          description: Estimated time of entering ambulance. Ignored on post.
+        estimatedDurationMinutes:
+          type: integer
+          format: int32
+          example: 15
+          description: >-
+            Estimated duration of ambulance visit. If not provided then it will
+            be computed based on condition and ambulance settings
+        condition:
+          $ref: "#/components/schemas/Condition"
+      example:
+        $ref: "#/components/examples/WaitingListEntryExample"
+    Condition:
+      description: "Describes disease, symptoms, or other reasons of patient   visit"
+      required:
+        - value
+      properties:
+        value:
+          type: string
+          example: Teploty
+        code:
+          type: string
+          example: subfebrilia
+        reference:
+          type: string
+          format: url
+          example: "https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/"
+          description: Link to encyclopedical explanation of the patient's condition
+        typicalDurationMinutes:
+          type: integer
+          format: int32
+          example: 20
+      example:
+        $ref: "#/components/examples/ConditionExample"
+    Room:
+      description: "Describes dimensions and equipment of ambulance rooms"
+      required:
+        - value
+      properties:
+        id:
+          type: string
+          example: x321ab3
+        width:
+          type: string
+          example: 11m
+        height:
+          type: string
+          example: 12m
+        reference:
+          type: string
+          format: url
+          example: "https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/"
+          description: Link to something
+        tipicalCostToOperate:
+          type: integer
+          format: int32
+          example: 20
+        equipment:
+          type: string
+          example: "1x bed, 1x chair, 1x table"
+      example:
+        $ref: "#/components/examples/RoomExample"
+    RoomsListEntry:
+      type: object
+      required: [id, width, height, tipicalCostToOperate]
+      properties:
+        id:
+          type: string
+          example: x321ab3
+          description: Unique id of the entry in this waiting list
+        width:
+          type: string
+          example: 1m
+          description: Width of room in waiting list
+        height:
+          type: string
+          example: 2m
+          description: Height of the room known to Web-In-Cloud system
+        tipicalCostToOperate:
+          type: integer
+          format: int32
+          example: 55
+          description: Timestamp since when the room entered the rooms list
+        Room:
+          $ref: "#/components/schemas/Room"
+      example:
+        $ref: "#/components/examples/RoomsListExample"
+    Schedule:
+      type: object
+      required: [id, patientId, roomId, note, start, end]
+      properties:
+        id:
+          type: string
+          example: x321ab3
+          description: Unique id of the entry in this waiting list
+        patientId:
+          type: string
+          example: 460527-jozef-pucik
+          description: Unique identifier of the patient known to Web-In-Cloud system
+        roomId:
+          type: string
+          example: 356 - 3.posch
+        note:
+          type: string
+          example: 356 - 3.posch
+        start:
+          type: string
+          format: date-time
+          example: "2038-12-24T10:05:00Z"
+          description: Timestamp since when the patient entered the waiting list
+        end:
+          type: string
+          format: date-time
+          example: "2038-12-24T10:35:00Z"
+          description: Estimated time of entering ambulance. Ignored on post.
+      example:
+        $ref: "#/components/examples/ScheduleExample"
+
+
   examples:
-    WaitingListEntryExample:
-      summary: Ľudomír Zlostný waiting
-      description: |
-        Entry represents a patient waiting in the ambulance prep room with
-        defined symptoms
-      value:
-        id: x321ab3
-        name: Ľudomír Zlostný
-        patientId: 74895-ludomir-zlostny
-        waitingSince: "2038-12-24T10:05:00.000Z"
-        estimatedStart: "2038-12-24T10:35:00.000Z"
-        estimatedDurationMinutes: 15
-        condition:
-          value: Nevoľnosť
-          code: nausea
-          reference: "https://zdravoteka.sk/priznaky/nevolnost/"
-    ConditionExample:
-      summary: Conditions and symptoms
-      description: list of few symptoms that can be chosen by patients
-      value:
-        valuee: Teploty
-        code: subfebrilia
-        reference: >-
-          https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/
-    WaitingListEntriesExample:
-      summary: List of waiting patients
-      description: |
-        Example waiting list containing 2 patients
-      value:
-      - id: x321ab3
-        name: Jožko Púčik
-        patientId: 460527-jozef-pucik
-        waitingSince: "2038-12-24T10:05:00.000Z"
-        estimatedStart: "2038-12-24T10:35:00.000Z"
-        estimatedDurationMinutes: 15
-        condition:
-          value: Teploty
-          code: subfebrilia
-          reference: "https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/"
-      - id: x321ab4
-        name: Ferdinand Trety
-        patientId: 780907-ferdinand-tre
-        waitingSince: "2038-12-24T10:25:00.000Z"
-        estimatedStart: "2038-12-24T10:50:00.000Z"
-        estimatedDurationMinutes: 25
-        condition:
-          value: Nevoľnosť
-          code: nausea
-          reference: "https://zdravoteka.sk/priznaky/nevolnost/"
-    ConditionsListExample:
-      summary: Sample of GP ambulance conditions
-      description: |
-        Example list of possible conditions, symptoms, and visit reasons
-      value:
-        - value: Teploty
-          code: subfebrilia
-          reference: "https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/"
-          typicalDurationMinutes: 20
-        - value: Nevoľnosť
-          code: nausea
-          reference: "https://zdravoteka.sk/priznaky/nevolnost/"
-          typicalDurationMinutes: 45
-        - value: Kontrola
-          code: followup
-          typicalDurationMinutes: 15
-        - value: Administratívny úkon
-          code: administration
-          typicalDurationMinutes: 10
-        - value: Odber krvi
-          code: blood-test
-          typicalDurationMinutes: 10
     AmbulanceExample:
       summary: Sample GP ambulance
       description: |
@@ -478,3 +736,131 @@ components:
           - value: Odber krvi
             code: blood-test
             typicalDurationMinutes: 10
+    WaitingListEntryExample:
+      summary: Ľudomír Zlostný waiting
+      description: |
+        Entry represents a patient waiting in the ambulance prep room with
+        defined symptoms
+      value:
+        id: x321ab3
+        name: Ľudomír Zlostný
+        patientId: 74895-ludomir-zlostny
+        waitingSince: "2038-12-24T10:05:00.000Z"
+        estimatedStart: "2038-12-24T10:35:00.000Z"
+        estimatedDurationMinutes: 15
+        condition:
+          value: Nevoľnosť
+          code: nausea
+          reference: "https://zdravoteka.sk/priznaky/nevolnost/"
+    ConditionExample:
+      summary: Conditions and symptoms
+      description: list of few symptoms that can be chosen by patients
+      value:
+        valuee: Teploty
+        code: subfebrilia
+        reference: >-
+          https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/
+    WaitingListEntriesExample:
+      summary: List of waiting patients
+      description: |
+        Example waiting list containing 2 patients
+      value:
+        - id: x321ab3
+          name: Jožko Púčik
+          patientId: 460527-jozef-pucik
+          waitingSince: "2038-12-24T10:05:00.000Z"
+          estimatedStart: "2038-12-24T10:35:00.000Z"
+          estimatedDurationMinutes: 15
+          condition:
+            value: Teploty
+            code: subfebrilia
+            reference: "https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/"
+        - id: x321ab4
+          name: Ferdinand Trety
+          patientId: 780907-ferdinand-tre
+          waitingSince: "2038-12-24T10:25:00.000Z"
+          estimatedStart: "2038-12-24T10:50:00.000Z"
+          estimatedDurationMinutes: 25
+          condition:
+            value: Nevoľnosť
+            code: nausea
+            reference: "https://zdravoteka.sk/priznaky/nevolnost/"
+    ConditionsListExample:
+      summary: Sample of GP ambulance conditions
+      description: |
+        Example list of possible conditions, symptoms, and visit reasons
+      value:
+        - value: Teploty
+          code: subfebrilia
+          reference: "https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/"
+          typicalDurationMinutes: 20
+        - value: Nevoľnosť
+          code: nausea
+          reference: "https://zdravoteka.sk/priznaky/nevolnost/"
+          typicalDurationMinutes: 45
+        - value: Kontrola
+          code: followup
+          typicalDurationMinutes: 15
+        - value: Administratívny úkon
+          code: administration
+          typicalDurationMinutes: 10
+        - value: Odber krvi
+          code: blood-test
+          typicalDurationMinutes: 10
+    RoomsListExample:
+      summary: Sample of GP ambulance rooms
+      description: |
+        Example list of possible rooms
+      value:
+        - id: x321ab3
+          width: 1m
+          height: 2m
+          reference: "https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/"
+          tipicalCostToOperate: 20
+        - id: x321ab4
+          width: 5m
+          height: 3m
+          reference: "https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/"
+          tipicalCostToOperate: 21
+        - id: x321ab5
+          width: 7m
+          height: 4m
+          reference: "https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/"
+          tipicalCostToOperate: 22
+        - id: x321ab6
+          width: 9m
+          height: 1m
+          reference: "https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/"
+          tipicalCostToOperate: 23
+        - id: x321ab7
+          width: 8m
+          height: 6m
+          reference: "https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/"
+          tipicalCostToOperate: 24
+    RoomExample:
+      summary: Room and its equipment
+      description: list of equipment in the room
+      value:
+        id: x321ab3
+        width: 0m
+        height: 0m
+        reference: "https://zdravoteka.sk/priznaky/zvysena-telesna-teplota/"
+        tipicalCostToOperate: 19
+    ScheduleExample:
+      summary: Schedule of ambulance
+      description: list of schedule of ambulance
+      value:
+        - id: x321ab3
+          patientId: 460527-jozef-pucik
+          roomId: 356 - 3.posch
+          note: 356 - 3.posch
+          start: "2038-12-24T10:05:00.000Z"
+          end: "2038-12-24T10:35:00.000Z"
+        - id: x321ab4
+          patientId: 780907-ferdinand-tre
+          roomId: 356 - 3.posch
+          note: 356 - 3.posch
+          start: "2038-12-24T10:25:00.000Z"
+          end: "2038-12-24T10:50:00.000Z"
+
+
