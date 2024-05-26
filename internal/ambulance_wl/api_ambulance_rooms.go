@@ -30,6 +30,9 @@ type AmbulanceRoomsAPI interface {
     // GetRooms - Provides the list of rooms associated with ambulance
    GetRooms(ctx *gin.Context)
 
+    // UpdateRoom - Updates specific room
+   UpdateRoom(ctx *gin.Context)
+
 }
 
 // partial implementation of AmbulanceRoomsAPI - all functions must be implemented in add on files
@@ -43,8 +46,9 @@ func newAmbulanceRoomsAPI() AmbulanceRoomsAPI {
 
 func (this *implAmbulanceRoomsAPI) addRoutes(routerGroup *gin.RouterGroup) {
   routerGroup.Handle( http.MethodPost, "/rooms/:ambulanceId/entries", this.CreateRoom)
-  routerGroup.Handle( http.MethodDelete, "/rooms/:ambulanceId/entries", this.DeleteRoom)
+  routerGroup.Handle( http.MethodDelete, "/rooms/:ambulanceId/room/:roomId", this.DeleteRoom)
   routerGroup.Handle( http.MethodGet, "/rooms/:ambulanceId/entries", this.GetRooms)
+  routerGroup.Handle( http.MethodPut, "/rooms/:ambulanceId/room/:roomId", this.UpdateRoom)
 }
 
 
@@ -61,6 +65,11 @@ func (this *implAmbulanceRoomsAPI) addRoutes(routerGroup *gin.RouterGroup) {
 //
 // // GetRooms - Provides the list of rooms associated with ambulance
 // func (this *implAmbulanceRoomsAPI) GetRooms(ctx *gin.Context) {
+//  	ctx.AbortWithStatus(http.StatusNotImplemented)
+// }
+//
+// // UpdateRoom - Updates specific room
+// func (this *implAmbulanceRoomsAPI) UpdateRoom(ctx *gin.Context) {
 //  	ctx.AbortWithStatus(http.StatusNotImplemented)
 // }
 //

@@ -116,12 +116,12 @@ func (this *implAmbulanceRoomsAPI) CreateRoom(ctx *gin.Context) {
 		entryIndx := slices.IndexFunc(ambulance.Rooms, func(room_entry Room) bool {
 			return entry.Id == room_entry.Id
 		})
-		if entryIndx < 0 {
-			return nil, gin.H{
-				"status":  http.StatusInternalServerError,
-				"message": "Failed to save entry",
-			}, http.StatusInternalServerError
-		}
+		// if entryIndx < 0 {
+		// 	return nil, gin.H{
+		// 		"status":  http.StatusInternalServerError,
+		// 		"message": "Failed to save entry",
+		// 	}, http.StatusInternalServerError
+		// }
 
 		return ambulance, ambulance.Rooms[entryIndx], http.StatusOK
 	})

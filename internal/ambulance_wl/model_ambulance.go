@@ -25,4 +25,6 @@ type Ambulance struct {
 	Rooms []Room `json:"rooms,omitempty"`
 
 	PredefinedConditions []Condition `json:"predefinedConditions,omitempty"`
+
+	Schedules []Schedule `json:"schedules,omitempty"`
 }

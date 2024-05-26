@@ -23,7 +23,7 @@ func (this *implSchedulesAPI) CreateSchedule(ctx *gin.Context) {
 		if entry.Id == "" {
 			return nil, gin.H{
 				"status":  http.StatusBadRequest,
-				"message": "Room ID is required",
+				"message": "Schedule ID is required",
 			}, http.StatusBadRequest
 		}
 
@@ -59,8 +59,8 @@ func (this *implSchedulesAPI) CreateSchedule(ctx *gin.Context) {
 			entry.Id = uuid.NewString()
 		}
 
-		conflictIndx := slices.IndexFunc(ambulance.Rooms, func(room_entry Room) bool {
-			return entry.Id == room_entry.Id
+		conflictIndx := slices.IndexFunc(ambulance.Schedules, func(schedule_entry Schedule) bool {
+			return entry.Id == schedule_entry.Id
 		})
 
 		if conflictIndx >= 0 {
@@ -70,12 +70,12 @@ func (this *implSchedulesAPI) CreateSchedule(ctx *gin.Context) {
 			}, http.StatusConflict
 		}
 
-		// ambulance.Rooms = append(ambulance.Schedules, entry)
+		ambulance.Schedules = append(ambulance.Schedules, entry)
 		// //ambulance.reconcileWaitingList() TODO: this is not needed here, since we dont need to update other room data
 		// //entry was copied by value return reconciled value from the list
-		// entryIndx := slices.IndexFunc(ambulance.Rooms, func(room_entry Room) bool {
-		// 	return entry.Id == room_entry.Id
-		// })
+		entryIndx := slices.IndexFunc(ambulance.Schedules, func(schedule_entry Schedule) bool {
+			return entry.Id == schedule_entry.Id
+		})
 		// if entryIndx < 0 {
 		// 	return nil, gin.H{
 		// 		"status":  http.StatusInternalServerError,
@@ -83,9 +83,9 @@ func (this *implSchedulesAPI) CreateSchedule(ctx *gin.Context) {
 		// 	}, http.StatusInternalServerError
 		// }
 
-		// return ambulance, ambulance.Rooms[entryIndx], http.StatusOK
+		return ambulance, ambulance.Schedules[entryIndx], http.StatusOK
 
-		return ambulance, entry, http.StatusOK
+		// return ambulance, entry, http.StatusOK
 	})
 }
 

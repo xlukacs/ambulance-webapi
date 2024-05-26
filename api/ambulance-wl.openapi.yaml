@@ -295,12 +295,37 @@ paths:
           description: Ambulance with such ID does not exists
         "409":
           description: Entry with the specified id already exists
+  "/rooms/{ambulanceId}/room/{roomId}":
     delete:
       tags:
         - ambulanceRooms
       summary: Deletes specific room
       operationId: deleteRoom
-      description: Use this method to delete the specific room from the rooms list.
+      description: Use this method to delete the specific room from the system.
+      parameters:
+        - in: path
+          name: roomId
+          description: pass the id of the particular room
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: ambulanceId
+          description: pass the id of the particular ambulance
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Item deleted
+        "404":
+          description: Room with such ID does not exist
+    put:
+      tags:
+        - ambulanceRooms
+      summary: Updates specific room
+      operationId: updateRoom
+      description: Use this method to update content of a specific room
       parameters:
         - in: path
           name: ambulanceId
@@ -309,17 +334,38 @@ paths:
           schema:
             type: string
         - in: path
-          name: entryId
-          description: pass the id of the particular entry in the rooms list
+          name: roomId
+          description: pass the id of the particular room
           required: true
           schema:
             type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Room"
+            examples:
+              request:
+                $ref: "#/components/examples/RoomExample"
+        description: Room to update
+        required: true
       responses:
-        "204":
-          description: Item deleted
+        "200":
+          description: >-
+            value of the updated room
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+              examples:
+                response:
+                  $ref: "#/components/examples/RoomExample"
+        "403":
+          description: >-
+            Value of the roomId and the data id is mismatching. Details are
+            provided in the response body.
         "404":
-          description: Ambulance or Entry with such ID does not exists
-
+          description: Ambulance or Room with such ID does not exists
   "/ambulance":
     post:
       tags:
@@ -533,7 +579,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/WaitingListEntry'
-
         rooms:
           type: array
           items:
@@ -542,6 +587,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Condition'
+        schedules:
+          type: array
+          items:
+            $ref: '#/components/schemas/Schedule'
       example:
         $ref: "#/components/examples/AmbulanceExample"
     WaitingListEntry:
