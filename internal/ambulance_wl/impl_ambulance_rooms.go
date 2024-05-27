@@ -161,6 +161,8 @@ func (this *implAmbulanceRoomsAPI) UpdateRoom(ctx *gin.Context) {
 
 		if room.Id != "" {
 			ambulance.Rooms[roomIndx].Id = room.Id
+		} else {
+			ambulance.Rooms[roomIndx].Id = roomId
 		}
 
 		if room.Width != "" {
@@ -173,6 +175,10 @@ func (this *implAmbulanceRoomsAPI) UpdateRoom(ctx *gin.Context) {
 
 		if room.Equipment != "" {
 			ambulance.Rooms[roomIndx].Equipment = room.Equipment
+		}
+
+		if room.Name != "" {
+			ambulance.Rooms[roomIndx].Name = room.Name
 		}
 
 		//ambulance.reconcileWaitingList()
